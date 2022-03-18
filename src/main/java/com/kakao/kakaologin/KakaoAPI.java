@@ -42,15 +42,19 @@ public class KakaoAPI {
             String line = "";
             String result = "";
             while ((line = br.readLine()) != null) {
-                System.out.println("response body = " + result);
-
-                JsonElement element = JsonParser.parseString(result);
-                accessToken = element.getAsJsonObject().get("access_token").getAsString();
-                refreshToken = element.getAsJsonObject().get("refresh_token").getAsString();
-
-                br.close();
-                bw.close();
+                result += line;
             }
+            System.out.println("response body = " + result);
+
+            JsonParser parser = new JsonParser();
+            JsonElement element = parser.parse(result);
+
+            accessToken = element.getAsJsonObject().get("access_token").getAsString();
+            refreshToken = element.getAsJsonObject().get("refresh_token").getAsString();
+
+            br.close();
+            bw.close();
+
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -96,5 +100,29 @@ public class KakaoAPI {
             e.printStackTrace();
         }
         return userInfo;
+    }
+
+    public void kakaoLogout(String accessToken) {
+        String reqURL = "https://kapi.kakao.com/v1/user/logout";
+        try {
+            URL url = new URL(reqURL);
+            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+            conn.setRequestMethod("POST");
+            conn.setRequestProperty("Authorization", "Bearer "+ accessToken);
+            int responseCode = conn.getResponseCode();
+            System.out.println("responseCode = " + responseCode);
+
+            BufferedReader br = new BufferedReader(new InputStreamReader(conn.getInputStream()));
+
+            String result = "";
+            String line = "";
+
+            while ((line = br.readLine()) != null) {
+                result += line;
+            }
+            System.out.println(result);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 }
